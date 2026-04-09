@@ -56,24 +56,11 @@ services:
     restart: always
     ports:
       - "80:80"
-      - "443:443"
     volumes:
       - static_volume:/app/static
       - media_volume:/app/media
-      - certbot_www:/var/www/certbot
-      - certbot_conf:/etc/letsencrypt
     depends_on:
       - web
-    networks:
-      - backend
-
-  certbot:
-    image: certbot/certbot
-    container_name: prod_certbot
-    volumes:
-      - certbot_www:/var/www/certbot
-      - certbot_conf:/etc/letsencrypt
-    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
     networks:
       - backend
 
@@ -82,8 +69,6 @@ volumes:
   redis_data:
   static_volume:
   media_volume:
-  certbot_www:
-  certbot_conf:
 
 networks:
   backend:
