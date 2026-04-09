@@ -5,7 +5,7 @@ Django REST Framework + PostgreSQL + Docker 기반 프로젝트 템플릿입니�
 
 ## Swagger (API 문서)
 
-http://52.78.208.65:8000/api/docs/
+http://3.34.209.84:8000/api/docs/
 ![img.png](img.png)
 
 위와 같이 뜨면 자동 배포 성공
