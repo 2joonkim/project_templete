@@ -119,8 +119,8 @@ make migrate        # 마이그레이션 실행
 make makemigrations # 마이그레이션 파일 생성
 make createsuperuser # 관리자 계정 생성
 make shell          # Django shell
-make lint           # 코드 검사 (black + isort + ruff)
-make code_format    # 코드 자동 포맷팅
+make lint           # 코드 검사 (ruff)
+make code_format    # 코드 자동 포맷팅 (ruff)
 make test           # mypy 타입체크 + Django 테스트
 make db-shell       # PostgreSQL 직접 접속
 make prune          # Docker 정리
@@ -128,17 +128,47 @@ make prune          # Docker 정리
 
 ---
 
-## Git 브랜치 전략
+## Git 브랜치 전략 & 개발 플로우
+
+기존 Git Flow를 간소화시켰습니다.  
+`feature` → `develop` → `main` 3단계로 운영합니다.
 
 ```
-feature/기능명  →  develop  →  main
+feature/기능명  →  develop  →  main (자동배포)
 ```
 
-1. `develop` 브랜치에서 `feature/기능명` 브랜치를 생성하여 개발
-2. 개발 완료 후 `develop`으로 PR 생성 → CI 자동 실행 (lint + test)
-3. CI 통과 & 코드 리뷰 후 `develop`에 머지
-4. 배포할 준비가 되면 `develop` → `main`으로 PR 생성 & 머지
-5. main 머지 시 자동으로 서버 배포 (Swagger 포함)
+### 개발 순서
+
+```bash
+# 1. develop 브랜치에서 기능 브랜치 생성
+git checkout develop
+git checkout -b feature/기능명
+
+# 2. 개발 진행 & 커밋
+git add -A
+git commit -m "feat: 기능 설명"
+
+# 3. 푸시
+git push origin feature/기능명
+
+# 4. GitHub에서 feature/기능명 → develop 으로 PR 생성
+#    → CI 자동 실행 (ruff + mypy + test)
+#    → 통과하면 코드 리뷰 후 머지
+
+# 5. 배포할 준비가 되면 GitHub에서 develop → main 으로 PR 생성
+#    → 머지하면 서버 자동 배포
+```
+
+### 코드 포맷팅 (PR 전에 실행)
+
+```bash
+# 컨테이너가 떠있을 때
+make code_format
+
+# 로컬에서 직접
+uv run ruff check --fix .
+uv run ruff format .
+```
 
 ---
 
@@ -146,15 +176,13 @@ feature/기능명  →  develop  →  main
 
 ### PR → develop (ci.yml)
 
-- Black (코드 포맷팅 검사)
-- isort (import 순서 검사)
-- Ruff (린트 검사)
+- Ruff (린트 + 포맷팅 검사)
 - Mypy (타입 체크)
 - Django 테스트
 
-### main 머지 시
+### develop → main 머지 시 (deploy.yml)
 
-- **deploy.yml**: Docker 이미지 빌드 → GHCR 푸시 → 서버 자동 배포 (Swagger 포함)
+- Docker 이미지 빌드 → GHCR 푸시 → 서버 자동 배포 (Swagger 포함)
 
 ---
 
@@ -192,4 +220,5 @@ GitHub 레포 > Settings > Secrets에 아래 값 등록:
 - GitHub Actions (CI/CD)
 - drf-spectacular (Swagger)
 - gunicorn (프로덕션 WSGI)
-- black / isort / ruff / mypy (코드 품질)
+- ruff (린트 + 포맷팅)
+- mypy (타입 체크)
