@@ -45,7 +45,7 @@ code_format:  ## ruff 자동 포맷팅
 
 test:  ## mypy 타입체크 + Django 테스트
 	$(COMPOSE) exec web uv run mypy .
-	$(COMPOSE) exec web uv run python manage.py test
+	$(COMPOSE) exec web uv run python manage.py test apps
 
 db-shell:  ## PostgreSQL 직접 접속
 	$(COMPOSE) exec db psql -U $${POSTGRES_USER:-postgres} -d $${POSTGRES_DB:-template_db}
