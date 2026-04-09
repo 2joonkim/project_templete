@@ -9,3 +9,7 @@ class HealthCheckTest(TestCase):
     def test_schema_returns_200(self):
         response = self.client.get("/api/schema/")
         self.assertEqual(response.status_code, 200)
+
+    def test_admin_redirects(self):
+        response = self.client.get("/admin/")
+        self.assertEqual(response.status_code, 302)
