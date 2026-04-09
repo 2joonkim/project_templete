@@ -17,22 +17,73 @@ services:
     networks:
       - backend
 
+  redis:
+    image: redis:7-alpine
+    container_name: prod_redis
+    restart: always
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - backend
+
   web:
     image: ghcr.io/${GITHUB_REPOSITORY}:latest
     container_name: prod_web
     restart: always
-    ports:
-      - "8000:8000"
     env_file:
       - ../envs/.env
+    volumes:
+      - static_volume:/app/static
+      - media_volume:/app/media
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - backend
+
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    container_name: prod_nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - static_volume:/app/static
+      - media_volume:/app/media
+      - certbot_www:/var/www/certbot
+      - certbot_conf:/etc/letsencrypt
+    depends_on:
+      - web
+    networks:
+      - backend
+
+  certbot:
+    image: certbot/certbot
+    container_name: prod_certbot
+    volumes:
+      - certbot_www:/var/www/certbot
+      - certbot_conf:/etc/letsencrypt
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
     networks:
       - backend
 
 volumes:
   postgres_data:
+  redis_data:
+  static_volume:
+  media_volume:
+  certbot_www:
+  certbot_conf:
 
 networks:
   backend:

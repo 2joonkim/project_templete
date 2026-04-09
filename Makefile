@@ -1,8 +1,8 @@
-COMPOSE := docker compose -f resource/docker-compose.yml
+COMPOSE := docker compose -f resource/docker-compose.yml --env-file envs/.env
 
 .PHONY: build up down restart logs ps \
         migrate makemigrations createsuperuser shell \
-        db-shell lint code_format test prune help
+        db-shell redis-cli lint code_format test prune help
 
 build:  ## 이미지 빌드
 	$(COMPOSE) build
@@ -49,6 +49,9 @@ test:  ## mypy 타입체크 + Django 테스트
 
 db-shell:  ## PostgreSQL 직접 접속
 	$(COMPOSE) exec db psql -U $${POSTGRES_USER:-postgres} -d $${POSTGRES_DB:-template_db}
+
+redis-cli:  ## Redis CLI 접속
+	$(COMPOSE) exec redis redis-cli
 
 prune:  ## 안 쓰는 이미지/볼륨 전부 정리
 	docker system prune -f
