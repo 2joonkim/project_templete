@@ -1,3 +1,11 @@
 from django.test import TestCase
 
-# Create your tests here.
+
+class HealthCheckTest(TestCase):
+    def test_swagger_returns_200(self):
+        response = self.client.get("/api/docs/")
+        self.assertEqual(response.status_code, 200)
+
+    def test_schema_returns_200(self):
+        response = self.client.get("/api/schema/")
+        self.assertEqual(response.status_code, 200)

@@ -14,22 +14,10 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "black>=26.3.1",
     "django-stubs>=6.0.2",
-    "isort>=8.0.1",
     "mypy>=1.20.0",
     "ruff>=0.15.9",
 ]
-
-[tool.black]
-line-length = 120
-target-version = ["py313"]
-
-[tool.isort]
-profile = "black"
-line_length = 120
-known_django = ["django"]
-sections = ["FUTURE", "STDLIB", "THIRDPARTY", "DJANGO", "FIRSTPARTY", "LOCALFOLDER"]
 
 [tool.ruff]
 line-length = 120
@@ -38,6 +26,9 @@ target-version = "py313"
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "B", "UP"]
 ignore = ["E501"]
+
+[tool.ruff.lint.isort]
+known-third-party = ["django", "rest_framework", "drf_spectacular"]
 
 [tool.mypy]
 plugins = ["mypy_django_plugin.main"]

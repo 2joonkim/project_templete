@@ -35,15 +35,13 @@ createsuperuser:  ## 관리자 계정 생성
 shell:  ## Django shell 접속
 	$(COMPOSE) exec web uv run python manage.py shell
 
-lint:  ## black + isort + ruff 검사
-	$(COMPOSE) exec web uv run black --check .
-	$(COMPOSE) exec web uv run isort --check-only .
+lint:  ## ruff 코드 검사
 	$(COMPOSE) exec web uv run ruff check .
+	$(COMPOSE) exec web uv run ruff format --check .
 
-code_format:  ## black + isort + ruff 자동 포맷팅
-	$(COMPOSE) exec web uv run black .
-	$(COMPOSE) exec web uv run isort .
+code_format:  ## ruff 자동 포맷팅
 	$(COMPOSE) exec web uv run ruff check --fix .
+	$(COMPOSE) exec web uv run ruff format .
 
 test:  ## mypy 타입체크 + Django 테스트
 	$(COMPOSE) exec web uv run mypy .
